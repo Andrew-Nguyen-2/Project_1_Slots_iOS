@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State var hideReset: Bool = true
+    @State var moneyRemaining = 5;
     var body: some View {
         ZStack {
             Image("flowers3")
@@ -17,12 +19,12 @@ struct ContentView: View {
             VStack {
                 Instructions
                 Flowers
-                GoButton
+                GoButton(moneyRemaining: moneyRemaining)
                 Spacer()
                 HStack {
                     GoldCoin
                     MoneyTextView
-                    ResetButton
+                    ResetButton(hidden: hideReset)
                 }
                 .padding(.bottom, 50)
             }
@@ -31,6 +33,7 @@ struct ContentView: View {
         .background(Color.init("Background Color"))
     }
 }
+
 
 var Instructions: some View = HStack {
     HStack {
@@ -62,13 +65,15 @@ var Flowers: some View = HStack {
 }
     .padding(.bottom, 50)
 
-var GoButton: some View = Button(action: {
-    print("go press")
-}) {
-    Image("go")
-        .resizable()
-        .scaledToFit()
-        .frame(width: 100, height: 100)
+func GoButton(moneyRemaining: Int) -> some View {
+    return Button(action: {
+        print("go press")
+    }) {
+        Image("go")
+            .resizable()
+            .scaledToFit()
+            .frame(width: 100, height: 100)
+    }
 }
 
 var GoldCoin: some View = Image("dol")
@@ -82,13 +87,16 @@ var MoneyTextView: some View = Text("$ 5")
     .foregroundColor(Color.init("Money Color"))
     .padding(.trailing, 130)
 
-var ResetButton: some View = Button(action: {
-    print("reset press")
-}) {
-    Image("reset1")
-        .resizable()
-        .scaledToFit()
-        .frame(width: 80, height: 80)
+func ResetButton(hidden: Bool) -> some View {
+    return Button(action: {
+        print("reset press")
+    }) {
+        Image("reset1")
+            .resizable()
+            .scaledToFit()
+            .frame(width: 80, height: 80)
+            .opacity(hidden ? 0 : 1)
+    }
 }
 
 struct ContentView_Previews: PreviewProvider {
