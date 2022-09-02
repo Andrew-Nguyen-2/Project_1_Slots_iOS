@@ -75,10 +75,11 @@ var GoldCoin: some View = Image("dol")
     .resizable()
     .scaledToFit()
     .frame(width: 80, height: 80)
+    .padding(.trailing, 5)
 
 var MoneyTextView: some View = Text("$ 5")
     .font(.system(size: 40))
-    .foregroundColor(Color.init("Background Color"))
+    .foregroundColor(Color.init("Money Color"))
     .padding(.trailing, 130)
 
 var ResetButton: some View = Button(action: {
