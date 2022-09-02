@@ -17,6 +17,7 @@ struct ContentView: View {
             VStack {
                 Instructions
                 Flowers
+                GoButton
                 Spacer()
             }
         }
@@ -53,7 +54,16 @@ var Flowers: some View = HStack {
         .resizable()
         .frame(width: 115, height: 115)
 }
+    .padding(.bottom, 50)
 
+var GoButton: some View = Button(action: {
+                            print("go press")
+}) {
+    Image("go")
+        .resizable()
+        .scaledToFit()
+        .frame(width: 100, height: 100)
+}
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
