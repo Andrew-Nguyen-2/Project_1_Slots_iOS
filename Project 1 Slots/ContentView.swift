@@ -19,6 +19,12 @@ struct ContentView: View {
                 Flowers
                 GoButton
                 Spacer()
+                HStack {
+                    GoldCoin
+                    MoneyTextView
+                    ResetButton
+                }
+                .padding(.bottom, 50)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -57,12 +63,31 @@ var Flowers: some View = HStack {
     .padding(.bottom, 50)
 
 var GoButton: some View = Button(action: {
-                            print("go press")
+    print("go press")
 }) {
     Image("go")
         .resizable()
         .scaledToFit()
         .frame(width: 100, height: 100)
+}
+
+var GoldCoin: some View = Image("dol")
+    .resizable()
+    .scaledToFit()
+    .frame(width: 80, height: 80)
+
+var MoneyTextView: some View = Text("$ 5")
+    .font(.system(size: 40))
+    .foregroundColor(Color.init("Background Color"))
+    .padding(.trailing, 130)
+
+var ResetButton: some View = Button(action: {
+    print("reset press")
+}) {
+    Image("reset1")
+        .resizable()
+        .scaledToFit()
+        .frame(width: 80, height: 80)
 }
 
 struct ContentView_Previews: PreviewProvider {
