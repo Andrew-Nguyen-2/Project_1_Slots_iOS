@@ -10,6 +10,7 @@ import SwiftUI
 struct ContentView: View {
     @State var showReset = false
     @State var defaultFlowers = true
+    @State var moneyRemaining = Constants.STARTUP_CASH
     @State var flowerImages = ["f1", "f2", "f3"]
     @State var randomFlowers = getRandomValues()
     
@@ -48,6 +49,8 @@ struct ContentView: View {
                         defaultFlowers.toggle()
                     }
                     randomFlowers = getRandomValues()
+                    moneyRemaining -= Constants.COST_PER_ROLL
+                    moneyRemaining += checkMatchingFlowers(flowerIndexList: randomFlowers)
                 }) {
                     Image("go")
                         .resizable()
@@ -58,13 +61,14 @@ struct ContentView: View {
                 Spacer()
                 HStack {
                     GoldCoin()
-                    MoneyTextView()
+                    MoneyTextView(money: moneyRemaining)
                     
                     // Reset Button
                     if showReset {
                         Button(action: {
                             showReset.toggle()
                             defaultFlowers.toggle()
+                            moneyRemaining = Constants.STARTUP_CASH
                         }) {
                             Image("reset1")
                                 .resizable()
@@ -115,7 +119,9 @@ struct DefaultFlowers: View {
 }
 
 func getRandomValues() -> Array<Int> {
-    return [Int.random(in: 0..<3), Int.random(in: 0..<3), Int.random(in: 0..<3)]
+    return [Int.random(in: 0..<Constants.NUMB_FLOWERS),
+            Int.random(in: 0..<Constants.NUMB_FLOWERS),
+            Int.random(in: 0..<Constants.NUMB_FLOWERS)]
 }
 
 func GoButton(moneyRemaining: Int) -> some View {
@@ -133,7 +139,7 @@ struct BottomLayout: View {
     var body: some View {
         HStack {
             GoldCoin()
-            MoneyTextView()
+            MoneyTextView(money: 5)
             
             // Reset Button
             ResetButton()
@@ -152,8 +158,9 @@ struct GoldCoin: View {
 }
 
 struct MoneyTextView: View {
+    var money: Int
     var body: some View {
-        Text("$ 5")
+        Text("$ \(money)")
             .font(.system(size: 40))
             .foregroundColor(Color.init("Money Color"))
             .padding(.trailing, 130)
@@ -169,6 +176,33 @@ func ResetButton() -> some View {
             .scaledToFit()
             .frame(width: 80, height: 80)
     }
+}
+
+func checkMatchingFlowers(flowerIndexList: Array<Int>) -> Int {
+    var flower1 = 0
+    var flower2 = 0
+    var flower3 = 0
+    
+    for flower in flowerIndexList {
+        if flower == 0 {
+            flower1 += 1
+        }
+        else if flower == 1 {
+            flower2 += 1
+        }
+        else {
+            flower3 += 1
+        }
+    }
+    
+    if flower1 == 2 || flower2 == 2 || flower3 == 2 {
+        return Constants.MATCH_2
+    }
+    else if flower1 == 3 || flower2 == 3 || flower3 == 3 {
+        return Constants.MATCH_3
+    }
+    
+    return Constants.MATCH_0
 }
 
 struct ContentView_Previews: PreviewProvider {
