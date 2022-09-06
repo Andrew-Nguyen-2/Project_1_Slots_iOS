@@ -13,6 +13,7 @@ struct ContentView: View {
     @State var defaultFlowers = true
     @State var moneyRemaining = Constants.STARTUP_CASH
     @State var randomFlowers = getRandomValues()
+    @State var isRotated = false
     
     var body: some View {
         ZStack {
@@ -27,14 +28,14 @@ struct ContentView: View {
                     if defaultFlowers {
                         DefaultFlowers()
                     } else {
-                        ChangeFlowers(randomFlowers: $randomFlowers)
+                        ChangeFlowerAnimation(isRotated: $isRotated)
                     }
                 }
                 .padding(.bottom, 50)
                 
                 if showGo {
                     GoButton(showReset: $showReset, showGo: $showGo, defaultFlowers: $defaultFlowers,
-                             moneyRemaining: $moneyRemaining, randomFlowers: $randomFlowers)
+                             moneyRemaining: $moneyRemaining, randomFlowers: $randomFlowers, isRotated: $isRotated)
                 }
 
                 Spacer()
@@ -81,6 +82,24 @@ struct DefaultFlowers: View {
     }
 }
 
+struct ChangeFlowerAnimation: View {
+    @Binding var isRotated: Bool
+    var body: some View {
+        Image("tmp")
+            .resizable()
+            .frame(width: 115, height: 115)
+            .rotationEffect(Angle.degrees(isRotated ? 360 : 0))
+        Image("tmp")
+            .resizable()
+            .frame(width: 115, height: 115)
+            .rotationEffect(Angle.degrees(isRotated ? 360 : 0))
+        Image("tmp")
+            .resizable()
+            .frame(width: 115, height: 115)
+            .rotationEffect(Angle.degrees(isRotated ? 360 : 0))
+    }
+}
+
 struct ChangeFlowers: View {
     let flowerImages = [Constants.FLOWER_1, Constants.FLOWER_2, Constants.FLOWER_3]
     @Binding var randomFlowers: Array<Int>
@@ -109,6 +128,13 @@ struct GoButton: View {
     @Binding var defaultFlowers: Bool
     @Binding var moneyRemaining: Int
     @Binding var randomFlowers: Array<Int>
+    @Binding var isRotated: Bool
+    
+    var animation: Animation {
+        Animation.linear(duration: 0.5)
+            .repeatCount(3, autoreverses: false)
+            .speed(3.0)
+    }
     
     var body: some View {
         Button(action: {
@@ -117,6 +143,9 @@ struct GoButton: View {
             }
             if defaultFlowers {
                 defaultFlowers.toggle()
+            }
+            withAnimation(animation) {
+                self.isRotated.toggle()
             }
             randomFlowers = getRandomValues()
             moneyRemaining -= Constants.COST_PER_ROLL
