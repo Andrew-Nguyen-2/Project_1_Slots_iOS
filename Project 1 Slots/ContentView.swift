@@ -66,28 +66,8 @@ struct ContentView: View {
                 }
 
                 Spacer()
-                HStack {
-                    GoldCoin()
-                    MoneyTextView(money: moneyRemaining)
-                    
-                    // Reset Button
-                    if showReset {
-                        Button(action: {
-                            showReset.toggle()
-                            defaultFlowers.toggle()
-                            moneyRemaining = Constants.STARTUP_CASH
-                            if showGo == false {
-                                showGo.toggle()
-                            }
-                        }) {
-                            Image("reset1")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 80, height: 80)
-                        }
-                    }
-                }
-                .padding(.bottom, 50)
+                BottomLayout(showReset: $showReset, showGo: $showGo,
+                             defaultFlowers: $defaultFlowers, moneyRemaining: $moneyRemaining)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -146,13 +126,20 @@ func goButton(moneyRemaining: Int) -> some View {
 }
 
 struct BottomLayout: View {
+    @Binding var showReset: Bool
+    @Binding var showGo: Bool
+    @Binding var defaultFlowers: Bool
+    @Binding var moneyRemaining: Int
+    
     var body: some View {
         HStack {
             GoldCoin()
-            MoneyTextView(money: 5)
+            MoneyTextView(money: moneyRemaining)
             
-            // Reset Button
-            resetButton()
+            if showReset {
+                ResetButton(showReset: $showReset, showGo: $showGo,
+                            defaultFlowers: $defaultFlowers, moneyRemaining: $moneyRemaining)
+            }
         }
         .padding(.bottom, 50)
     }
@@ -177,14 +164,26 @@ struct MoneyTextView: View {
     }
 }
 
-func resetButton() -> some View {
-    return Button(action: {
-        print("reset press")
-    }) {
-        Image("reset1")
-            .resizable()
-            .scaledToFit()
-            .frame(width: 80, height: 80)
+struct ResetButton: View {
+    @Binding var showReset: Bool
+    @Binding var showGo: Bool
+    @Binding var defaultFlowers: Bool
+    @Binding var moneyRemaining: Int
+    
+    var body: some View {
+        Button(action: {
+            showReset.toggle()
+            defaultFlowers.toggle()
+            moneyRemaining = Constants.STARTUP_CASH
+            if showGo == false {
+                showGo.toggle()
+            }
+        }) {
+            Image("reset1")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 80, height: 80)
+        }
     }
 }
 
