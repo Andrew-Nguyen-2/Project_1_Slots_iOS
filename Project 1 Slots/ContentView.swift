@@ -9,9 +9,10 @@ import SwiftUI
 
 struct ContentView: View {
     @State var showReset = false
+    @State var showGo = true
     @State var defaultFlowers = true
     @State var moneyRemaining = Constants.STARTUP_CASH
-    @State var flowerImages = ["f1", "f2", "f3"]
+    @State var flowerImages = [Constants.FLOWER_1, Constants.FLOWER_2, Constants.FLOWER_3]
     @State var randomFlowers = getRandomValues()
     
     var body: some View {
@@ -41,21 +42,27 @@ struct ContentView: View {
                 .padding(.bottom, 50)
                 
                 // Go Button
-                Button(action: {
-                    if showReset == false {
-                        showReset.toggle()
+                if showGo {
+                    Button(action: {
+                        if showReset == false {
+                            showReset.toggle()
+                        }
+                        if defaultFlowers {
+                            defaultFlowers.toggle()
+                        }
+                        randomFlowers = getRandomValues()
+                        moneyRemaining -= Constants.COST_PER_ROLL
+                        moneyRemaining += checkMatchingFlowers(flowerIndexList: randomFlowers)
+                        
+                        if moneyRemaining == Constants.YOUR_BROKE {
+                            showGo.toggle()
+                        }
+                    }) {
+                        Image("go")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 100, height: 100)
                     }
-                    if defaultFlowers {
-                        defaultFlowers.toggle()
-                    }
-                    randomFlowers = getRandomValues()
-                    moneyRemaining -= Constants.COST_PER_ROLL
-                    moneyRemaining += checkMatchingFlowers(flowerIndexList: randomFlowers)
-                }) {
-                    Image("go")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 100, height: 100)
                 }
 
                 Spacer()
@@ -69,6 +76,9 @@ struct ContentView: View {
                             showReset.toggle()
                             defaultFlowers.toggle()
                             moneyRemaining = Constants.STARTUP_CASH
+                            if showGo == false {
+                                showGo.toggle()
+                            }
                         }) {
                             Image("reset1")
                                 .resizable()
@@ -106,13 +116,13 @@ struct Instructions: View {
 
 struct DefaultFlowers: View {
     var body: some View {
-        Image("f1")
+        Image(Constants.FLOWER_1)
             .resizable()
             .frame(width: 115, height: 115)
-        Image("f2")
+        Image(Constants.FLOWER_2)
             .resizable()
             .frame(width: 115, height: 115)
-        Image("f3")
+        Image(Constants.FLOWER_3)
             .resizable()
             .frame(width: 115, height: 115)
     }
@@ -124,7 +134,7 @@ func getRandomValues() -> Array<Int> {
             Int.random(in: 0..<Constants.NUMB_FLOWERS)]
 }
 
-func GoButton(moneyRemaining: Int) -> some View {
+func goButton(moneyRemaining: Int) -> some View {
     return Button(action: {
         print("go pressed")
     }) {
@@ -142,7 +152,7 @@ struct BottomLayout: View {
             MoneyTextView(money: 5)
             
             // Reset Button
-            ResetButton()
+            resetButton()
         }
         .padding(.bottom, 50)
     }
@@ -167,7 +177,7 @@ struct MoneyTextView: View {
     }
 }
 
-func ResetButton() -> some View {
+func resetButton() -> some View {
     return Button(action: {
         print("reset press")
     }) {
