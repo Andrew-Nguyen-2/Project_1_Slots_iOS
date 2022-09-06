@@ -12,7 +12,6 @@ struct ContentView: View {
     @State var showGo = true
     @State var defaultFlowers = true
     @State var moneyRemaining = Constants.STARTUP_CASH
-    @State var flowerImages = [Constants.FLOWER_1, Constants.FLOWER_2, Constants.FLOWER_3]
     @State var randomFlowers = getRandomValues()
     
     var body: some View {
@@ -28,44 +27,18 @@ struct ContentView: View {
                     if defaultFlowers {
                         DefaultFlowers()
                     } else {
-                        Image(flowerImages[randomFlowers[0]])
-                            .resizable()
-                            .frame(width: 115, height: 115)
-                        Image(flowerImages[randomFlowers[1]])
-                            .resizable()
-                            .frame(width: 115, height: 115)
-                        Image(flowerImages[randomFlowers[2]])
-                            .resizable()
-                            .frame(width: 115, height: 115)
+                        ChangeFlowers(randomFlowers: $randomFlowers)
                     }
                 }
                 .padding(.bottom, 50)
                 
-                // Go Button
                 if showGo {
-                    Button(action: {
-                        if showReset == false {
-                            showReset.toggle()
-                        }
-                        if defaultFlowers {
-                            defaultFlowers.toggle()
-                        }
-                        randomFlowers = getRandomValues()
-                        moneyRemaining -= Constants.COST_PER_ROLL
-                        moneyRemaining += checkMatchingFlowers(flowerIndexList: randomFlowers)
-                        
-                        if moneyRemaining == Constants.YOUR_BROKE {
-                            showGo.toggle()
-                        }
-                    }) {
-                        Image("go")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 100, height: 100)
-                    }
+                    GoButton(showReset: $showReset, showGo: $showGo, defaultFlowers: $defaultFlowers,
+                             moneyRemaining: $moneyRemaining, randomFlowers: $randomFlowers)
                 }
 
                 Spacer()
+                
                 BottomLayout(showReset: $showReset, showGo: $showGo,
                              defaultFlowers: $defaultFlowers, moneyRemaining: $moneyRemaining)
             }
@@ -108,20 +81,56 @@ struct DefaultFlowers: View {
     }
 }
 
+struct ChangeFlowers: View {
+    let flowerImages = [Constants.FLOWER_1, Constants.FLOWER_2, Constants.FLOWER_3]
+    @Binding var randomFlowers: Array<Int>
+    var body: some View {
+        Image(flowerImages[randomFlowers[0]])
+            .resizable()
+            .frame(width: 115, height: 115)
+        Image(flowerImages[randomFlowers[1]])
+            .resizable()
+            .frame(width: 115, height: 115)
+        Image(flowerImages[randomFlowers[2]])
+            .resizable()
+            .frame(width: 115, height: 115)
+    }
+}
+
 func getRandomValues() -> Array<Int> {
     return [Int.random(in: 0..<Constants.NUMB_FLOWERS),
             Int.random(in: 0..<Constants.NUMB_FLOWERS),
             Int.random(in: 0..<Constants.NUMB_FLOWERS)]
 }
 
-func goButton(moneyRemaining: Int) -> some View {
-    return Button(action: {
-        print("go pressed")
-    }) {
-        Image("go")
-            .resizable()
-            .scaledToFit()
-            .frame(width: 100, height: 100)
+struct GoButton: View {
+    @Binding var showReset: Bool
+    @Binding var showGo: Bool
+    @Binding var defaultFlowers: Bool
+    @Binding var moneyRemaining: Int
+    @Binding var randomFlowers: Array<Int>
+    
+    var body: some View {
+        Button(action: {
+            if showReset == false {
+                showReset.toggle()
+            }
+            if defaultFlowers {
+                defaultFlowers.toggle()
+            }
+            randomFlowers = getRandomValues()
+            moneyRemaining -= Constants.COST_PER_ROLL
+            moneyRemaining += checkMatchingFlowers(flowerIndexList: randomFlowers)
+            
+            if moneyRemaining == Constants.YOUR_BROKE {
+                showGo.toggle()
+            }
+        }) {
+            Image("go")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 100, height: 100)
+        }
     }
 }
 
