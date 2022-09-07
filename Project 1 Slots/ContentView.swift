@@ -13,7 +13,9 @@ struct ContentView: View {
     @State var defaultFlowers = true
     @State var moneyRemaining = Constants.STARTUP_CASH
     @State var randomFlowers = getRandomValues()
-    @State var isRotated = false
+    @State var spinAmount = 0.0
+    let flowerImages = [Constants.FLOWER_1, Constants.FLOWER_2, Constants.FLOWER_3]
+    @State var currentFlowers = ["f1", "f2", "f3"]
     
     var body: some View {
         ZStack {
@@ -28,14 +30,14 @@ struct ContentView: View {
                     if defaultFlowers {
                         DefaultFlowers()
                     } else {
-                        ChangeFlowerAnimation(isRotated: $isRotated)
+                        ChangeFlowers(randomFlowers: $randomFlowers, spinAmount: $spinAmount, currentFlowers: $currentFlowers)
                     }
                 }
                 .padding(.bottom, 50)
                 
                 if showGo {
                     GoButton(showReset: $showReset, showGo: $showGo, defaultFlowers: $defaultFlowers,
-                             moneyRemaining: $moneyRemaining, randomFlowers: $randomFlowers, isRotated: $isRotated)
+                             moneyRemaining: $moneyRemaining, randomFlowers: $randomFlowers, spinAmount: $spinAmount)
                 }
 
                 Spacer()
@@ -82,37 +84,46 @@ struct DefaultFlowers: View {
     }
 }
 
-struct ChangeFlowerAnimation: View {
-    @Binding var isRotated: Bool
-    var body: some View {
-        Image("tmp")
-            .resizable()
-            .frame(width: 115, height: 115)
-            .rotationEffect(Angle.degrees(isRotated ? 360 : 0))
-        Image("tmp")
-            .resizable()
-            .frame(width: 115, height: 115)
-            .rotationEffect(Angle.degrees(isRotated ? 360 : 0))
-        Image("tmp")
-            .resizable()
-            .frame(width: 115, height: 115)
-            .rotationEffect(Angle.degrees(isRotated ? 360 : 0))
-    }
-}
-
 struct ChangeFlowers: View {
     let flowerImages = [Constants.FLOWER_1, Constants.FLOWER_2, Constants.FLOWER_3]
     @Binding var randomFlowers: Array<Int>
+    @Binding var spinAmount: Double
+    @Binding var currentFlowers: Array<String>
+    
     var body: some View {
-        Image(flowerImages[randomFlowers[0]])
+        Image(currentFlowers[0])
             .resizable()
             .frame(width: 115, height: 115)
-        Image(flowerImages[randomFlowers[1]])
+            .rotationEffect(Angle.degrees(spinAmount))
+            .onAnimationRunning(for: spinAmount) {
+                currentFlowers[0] = "tmp"
+            }
+            .onAnimationCompleted(for: spinAmount) {
+                currentFlowers[0] = flowerImages[randomFlowers[0]]
+                spinAmount = 0.0
+            }
+        Image(currentFlowers[1])
             .resizable()
             .frame(width: 115, height: 115)
-        Image(flowerImages[randomFlowers[2]])
+            .rotationEffect(Angle.degrees(spinAmount))
+            .onAnimationRunning(for: spinAmount) {
+                currentFlowers[1] = "tmp"
+            }
+            .onAnimationCompleted(for: spinAmount) {
+                currentFlowers[1] = flowerImages[randomFlowers[1]]
+                spinAmount = 0.0
+            }
+        Image(currentFlowers[2])
             .resizable()
             .frame(width: 115, height: 115)
+            .rotationEffect(Angle.degrees(spinAmount))
+            .onAnimationRunning(for: spinAmount) {
+                currentFlowers[2] = "tmp"
+            }
+            .onAnimationCompleted(for: spinAmount) {
+                currentFlowers[2] = flowerImages[randomFlowers[2]]
+                spinAmount = 0.0
+            }
     }
 }
 
@@ -128,13 +139,7 @@ struct GoButton: View {
     @Binding var defaultFlowers: Bool
     @Binding var moneyRemaining: Int
     @Binding var randomFlowers: Array<Int>
-    @Binding var isRotated: Bool
-    
-    var animation: Animation {
-        Animation.linear(duration: 0.5)
-            .repeatCount(3, autoreverses: false)
-            .speed(3.0)
-    }
+    @Binding var spinAmount: Double
     
     var body: some View {
         Button(action: {
@@ -144,8 +149,8 @@ struct GoButton: View {
             if defaultFlowers {
                 defaultFlowers.toggle()
             }
-            withAnimation(animation) {
-                self.isRotated.toggle()
+            withAnimation(.linear(duration: 0.5)) {
+                spinAmount = 360.0
             }
             randomFlowers = getRandomValues()
             moneyRemaining -= Constants.COST_PER_ROLL
@@ -250,6 +255,76 @@ func checkMatchingFlowers(flowerIndexList: Array<Int>) -> Int {
     }
     
     return Constants.MATCH_0
+}
+
+struct AnimationCompletionObserverModifier<Value>: AnimatableModifier where Value: VectorArithmetic {
+    
+    var animatableData: Value {
+        didSet {
+            notifyCompletionIfFinished()
+        }
+    }
+    
+    private var targetValue: Value
+    private var completion: () -> Void
+    
+    init(observedValue: Value, completion: @escaping () -> Void) {
+        self.completion = completion
+        self.animatableData = observedValue
+        targetValue = observedValue
+    }
+    
+    private func notifyCompletionIfFinished() {
+        guard animatableData == targetValue else { return }
+
+        DispatchQueue.main.async {
+            self.completion()
+        }
+    }
+    
+    func body(content: Content) -> some View {
+        return content
+    }
+}
+
+struct AnimationRunningObserverModifier<Value>: AnimatableModifier where Value: VectorArithmetic {
+    
+    var animatableData: Value {
+        didSet {
+            notifyStillRunning()
+        }
+    }
+    
+    private var targetValue: Value
+    private var running: () -> Void
+    
+    init(observedValue: Value, running: @escaping () -> Void) {
+        self.running = running
+        self.animatableData = observedValue
+        targetValue = observedValue
+    }
+    
+    private func notifyStillRunning() {
+        guard animatableData != targetValue else { return }
+        
+        DispatchQueue.main.async {
+            self.running()
+        }
+    }
+    
+    func body(content: Content) -> some View {
+        return content
+    }
+}
+
+extension View {
+    func onAnimationCompleted<Value: VectorArithmetic>(for value: Value, completion: @escaping () -> Void) -> ModifiedContent<Self, AnimationCompletionObserverModifier<Value>> {
+        return modifier(AnimationCompletionObserverModifier(observedValue: value, completion: completion))
+    }
+    func onAnimationRunning<Value: VectorArithmetic>(for value: Value, running: @escaping () -> Void) ->
+        ModifiedContent<Self, AnimationRunningObserverModifier<Value>> {
+        return modifier(AnimationRunningObserverModifier(observedValue: value, running: running))
+    }
 }
 
 struct ContentView_Previews: PreviewProvider {
