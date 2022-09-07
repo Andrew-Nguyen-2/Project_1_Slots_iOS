@@ -14,7 +14,6 @@ struct ContentView: View {
     @State var moneyRemaining = Constants.STARTUP_CASH
     @State var randomFlowers = getRandomValues()
     @State var spinAmount = 0.0
-    let flowerImages = [Constants.FLOWER_1, Constants.FLOWER_2, Constants.FLOWER_3]
     @State var currentFlowers = ["f1", "f2", "f3"]
     
     var body: some View {
@@ -85,45 +84,24 @@ struct DefaultFlowers: View {
 }
 
 struct ChangeFlowers: View {
-    let flowerImages = [Constants.FLOWER_1, Constants.FLOWER_2, Constants.FLOWER_3]
     @Binding var randomFlowers: Array<Int>
     @Binding var spinAmount: Double
     @Binding var currentFlowers: Array<String>
     
     var body: some View {
-        Image(currentFlowers[0])
-            .resizable()
-            .frame(width: 115, height: 115)
-            .rotationEffect(Angle.degrees(spinAmount))
-            .onAnimationRunning(for: spinAmount) {
-                currentFlowers[0] = "tmp"
-            }
-            .onAnimationCompleted(for: spinAmount) {
-                currentFlowers[0] = flowerImages[randomFlowers[0]]
-                spinAmount = 0.0
-            }
-        Image(currentFlowers[1])
-            .resizable()
-            .frame(width: 115, height: 115)
-            .rotationEffect(Angle.degrees(spinAmount))
-            .onAnimationRunning(for: spinAmount) {
-                currentFlowers[1] = "tmp"
-            }
-            .onAnimationCompleted(for: spinAmount) {
-                currentFlowers[1] = flowerImages[randomFlowers[1]]
-                spinAmount = 0.0
-            }
-        Image(currentFlowers[2])
-            .resizable()
-            .frame(width: 115, height: 115)
-            .rotationEffect(Angle.degrees(spinAmount))
-            .onAnimationRunning(for: spinAmount) {
-                currentFlowers[2] = "tmp"
-            }
-            .onAnimationCompleted(for: spinAmount) {
-                currentFlowers[2] = flowerImages[randomFlowers[2]]
-                spinAmount = 0.0
-            }
+        ForEach(0..<3) { i in
+            Image(currentFlowers[i])
+                .resizable()
+                .frame(width: 115, height: 115)
+                .rotationEffect(Angle.degrees(spinAmount))
+                .onAnimationRunning(for: spinAmount) {
+                    currentFlowers[i] = "tmp"
+                }
+                .onAnimationCompleted(for: spinAmount) {
+                    currentFlowers[i] = Constants.FLOWER_IMAGES[randomFlowers[i]]
+                    spinAmount = 0.0
+                }
+        }
     }
 }
 

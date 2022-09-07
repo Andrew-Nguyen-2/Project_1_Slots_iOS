@@ -19,4 +19,5 @@ struct Constants {
     static let FLOWER_1         = "f1"
     static let FLOWER_2         = "f2"
     static let FLOWER_3         = "f3"
+    static let FLOWER_IMAGES    = [FLOWER_1, FLOWER_2, FLOWER_3]
 }
