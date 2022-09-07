@@ -16,8 +16,6 @@ struct Constants {
     static let MATCH_2          = 2
     static let MATCH_3          = 3
     
-    static let FLOWER_1         = "f1"
-    static let FLOWER_2         = "f2"
-    static let FLOWER_3         = "f3"
-    static let FLOWER_IMAGES    = [FLOWER_1, FLOWER_2, FLOWER_3]
+    static let BACKGROUND_IMAGE = "flowers3"
+    static let FLOWER_IMAGES    = ["f1", "f2", "f3"]
 }
