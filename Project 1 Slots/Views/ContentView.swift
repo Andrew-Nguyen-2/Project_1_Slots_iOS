@@ -15,6 +15,7 @@ struct ContentView: View {
     @State var randomFlowers = getRandomValues()
     @State var spinAmount = 0.0
     @State var currentFlowers = Constants.FLOWER_IMAGES
+    @State var goDisabled = false
     
     var body: some View {
         ZStack {
@@ -35,7 +36,8 @@ struct ContentView: View {
                 
                 if showGo {
                     GoButton(showReset: $showReset, showGo: $showGo, defaultFlowers: $defaultFlowers,
-                             moneyRemaining: $moneyRemaining, randomFlowers: $randomFlowers, spinAmount: $spinAmount)
+                             moneyRemaining: $moneyRemaining, randomFlowers: $randomFlowers,
+                             spinAmount: $spinAmount, goDisabled: $goDisabled)
                 }
 
                 Spacer()

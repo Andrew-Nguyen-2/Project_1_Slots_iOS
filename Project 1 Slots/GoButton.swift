@@ -14,6 +14,7 @@ struct GoButton: View {
     @Binding var moneyRemaining: Int
     @Binding var randomFlowers: Array<Int>
     @Binding var spinAmount: Double
+    @Binding var goDisabled: Bool
     
     var body: some View {
         Button(action: {
@@ -28,19 +29,22 @@ struct GoButton: View {
             }
             randomFlowers = getRandomValues()
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
                 moneyRemaining -= Constants.COST_PER_ROLL
                 moneyRemaining += checkMatchingFlowers(flowerIndexList: randomFlowers)
                 
                 if moneyRemaining == Constants.YOUR_BROKE {
                     showGo.toggle()
                 }
+                goDisabled.toggle()
             }
+            goDisabled.toggle()
         }) {
             Image("go")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 100, height: 100)
         }
+        .disabled(goDisabled)
     }
 }
